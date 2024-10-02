@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fancy Text Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .header {
+            background-color: #FFA500; /* Light orange color */
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .copy-button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+    </style>
+    <script>
+        function checkInput() {
+            const textInput = document.getElementById('text').value;
+            fetch('/fancify?text=' + encodeURIComponent(textInput))
+                .then(response => response.json())
+                .then(data => {
+                    const resultDiv = document.getElementById('result');
+                    resultDiv.innerHTML = ''; // Clear previous results
+                    for (const [style, text] of Object.entries(data)) {
+                        const listItem = document.createElement('li');
+                        const span = document.createElement('span');
+                        span.innerHTML = text;
+
+                        const copyButton = document.createElement('button');
+                        copyButton.innerText = 'Copy';
+                        copyButton.classList.add('copy-button');
+                        copyButton.onclick = function() {
+                            copyToClipboard(text);
+                        };
+
+                        listItem.appendChild(span);
+                        listItem.appendChild(copyButton);
+                        resultDiv.appendChild(listItem);
+                    }
+                });
+        }
+
+        function copyToClipboard(text) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert('Copied to clipboard!');
+        }
+
+        setInterval(checkInput, 1000); // Check every second
+    </script>
+</head>
+<body>
+    <div class="header">
+        <h1>Fancy Text Generator</h1>
+    </div>
+    <div class="container">
+        <label for="text">Enter text to fancify:</label><br>
+        <input type="text" id="text" name="text"><br>
+        <ul id="result"></ul>
+    </div>
+</body>
+</html>
